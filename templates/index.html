@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DecentralStore | Blockchain-Powered Storage</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #06b6d4;
+            --secondary-dark: #0891b2;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --border: #e2e8f0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f1f5f9;
+            color: #334155;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            margin-bottom: 24px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .card-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-body {
+            padding: 24px;
+        }
+        
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--primary);
+        }
+        
+        .logo i {
+            font-size: 2rem;
+        }
+        
+        h1, h2, h3 {
+            color: var(--dark);
+            font-weight: 600;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+        
+        h2 {
+            font-size: 1.5rem;
+            margin-bottom: 16px;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        }
+        
+        .btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--secondary-dark);
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+        }
+        
+        .btn-success:hover {
+            background-color: #0d9668;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+        }
+        
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+        
+        .upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            background-color: #f8fafc;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .upload-area:hover, .upload-area.dragover {
+            border-color: var(--primary);
+            background-color: rgba(99, 102, 241, 0.05);
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 16px;
+        }
+        
+        .upload-text {
+            margin-bottom: 16px;
+            color: var(--gray);
+        }
+        
+        .upload-input {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+        
+        .file-list {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .file-list th {
+            text-align: left;
+            padding: 12px 16px;
+            background-color: #f8fafc;
+            color: var(--gray);
+            font-weight: 500;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .file-list td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+        
+        .file-list tr:hover {
+            background-color: #f1f5f9;
+        }
+        
+        .file-icon {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-right: 12px;
+        }
+        
+        .file-name {
+            display: flex;
+            align-items: center;
+        }
+        
+        .hash-display {
+            font-family: 'Courier New', monospace;
+            color: var(--gray);
+            font-size: 0.9rem;
+            background-color: #f1f5f9;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .hash-display:hover {
+            background-color: #e2e8f0;
+        }
+        
+        .hash-tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--dark);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+        
+        .hash-display:hover .hash-tooltip {
+            opacity: 1;
+            visibility: visible;
+            bottom: calc(100% + 10px);
+        }
+        
+        .blockchain-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            transition: all 0.3s ease;
+        }
+        
+        .status-icon {
+            font-size: 1.5rem;
+        }
+        
+        .valid {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+        
+        .invalid {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+        
+        .flash-messages {
+            margin-bottom: 24px;
+        }
+        
+        .flash-message {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .flash-success {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border-left: 4px solid var(--success);
+        }
+        
+        .flash-error {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border-left: 4px solid var(--danger);
+        }
+        
+        .flash-info {
+            background-color: rgba(6, 182, 212, 0.1);
+            color: var(--secondary);
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray);
+        }
+        
+        .empty-icon {
+            font-size: 4rem;
+            color: var(--border);
+            margin-bottom: 16px;
+        }
+        
+        .how-it-works {
+            margin-top: 40px;
+        }
+        
+        .step {
+            display: flex;
+            margin-bottom: 16px;
+            align-items: flex-start;
+            gap: 16px;
+        }
+        
+        .step-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 50%;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        
+        .step-content {
+            flex: 1;
+        }
+        
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: modalIn 0.3s ease;
+        }
+        
+        @keyframes modalIn {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-body {
+            padding: 24px;
+        }
+        
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+            transition: color 0.2s ease;
+        }
+        
+        .close-btn:hover {
+            color: var(--dark);
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background-color: #e2e8f0;
+            border-radius: 4px;
+            margin-top: 16px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary);
+            width: 0;
+            transition: width 0.3s ease;
+        }
+        
+        .file-details {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .detail-label {
+            font-weight: 500;
+            color: var(--gray);
+        }
+        
+        .detail-value {
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px;
+            }
+            
+            .card-header, .card-body {
+                padding: 16px;
+            }
+            
+            .app-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+            
+            .upload-area {
+                padding: 24px;
+            }
+            
+            .file-list th:nth-child(3), 
+            .file-list td:nth-child(3) {
+                display: none;
+            }
+            
+            .btn {
+                padding: 8px 16px;
+                font-size: 0.9rem;
+            }
+        }
+        
+        /* Add new styles for blockchain management */
+        .blockchain-tools {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        
+        .validation-errors {
+            margin-top: 16px;
+            padding: 16px;
+            background-color: rgba(239, 68, 68, 0.1);
+            border-left: 4px solid var(--danger);
+            border-radius: 8px;
+        }
+        
+        .validation-errors h3 {
+            color: var(--danger);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .validation-errors ul {
+            margin-left: 24px;
+        }
+        
+        .validation-errors li {
+            margin-bottom: 4px;
+        }
+        
+        .confirmation-modal .modal-content {
+            max-width: 400px;
+        }
+        
+        .confirmation-message {
+            margin-bottom: 16px;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning);
+        }
+        
+        .btn-warning:hover {
+            background-color: #d97706;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+        }
+        
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="app-header">
+            <div class="logo">
+                <i class="fas fa-cubes"></i>
+                <div>
+                    <h1>DecentralStore</h1>
+                    <p>Blockchain-Powered Secure Storage</p>
+                </div>
+            </div>
+            <a href="{{ url_for('verify_blockchain') }}" class="btn btn-secondary">
+                <i class="fas fa-shield-alt"></i> Verify Blockchain
+            </a>
+        </div>
+        
+        {% if get_flashed_messages() %}
+        <div class="flash-messages">
+            {% for message in get_flashed_messages() %}
+                <div class="flash-message {% if 'verified' in message.lower() or 'uploaded' in message.lower() or 'repaired' in message.lower() %}flash-success{% elif 'failed' in message.lower() or 'tampered' in message.lower() or 'error' in message.lower() %}flash-error{% else %}flash-info{% endif %}">
+                    <i class="fas {% if 'verified' in message.lower() or 'uploaded' in message.lower() or 'repaired' in message.lower() %}fa-check-circle{% elif 'failed' in message.lower() or 'tampered' in message.lower() or 'error' in message.lower() %}fa-exclamation-circle{% else %}fa-info-circle{% endif %}"></i>
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <div class="blockchain-status {% if chain_valid %}valid{% else %}invalid{% endif %}">
+            <i class="fas {% if chain_valid %}fa-check-circle{% else %}fa-exclamation-triangle{% endif %} status-icon"></i>
+            <div>
+                <strong>Blockchain Status:</strong> 
+                {% if chain_valid %}
+                    Valid - Data integrity confirmed
+                {% else %}
+                    Invalid - Data integrity compromised!
+                    
+                    <div class="blockchain-tools">
+                        <button id="repair-btn" class="btn btn-warning">
+                            <i class="fas fa-wrench"></i> Repair Blockchain
+                        </button>
+                        <button id="reset-btn" class="btn btn-danger">
+                            <i class="fas fa-trash-alt"></i> Reset Blockchain
+                        </button>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        {% if not chain_valid and validation_errors %}
+        <div class="validation-errors">
+            <h3><i class="fas fa-exclamation-triangle"></i> Blockchain Validation Errors</h3>
+            <ul>
+                {% for error in validation_errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+            <p style="margin-top: 12px;">
+                <strong>What does this mean?</strong> The blockchain has detected integrity issues. 
+                You can try to repair the chain to fix these issues, or reset the blockchain to start fresh.
+            </p>
+        </div>
+        {% endif %}
+        
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-cloud-upload-alt"></i> Upload New File</h2>
+            </div>
+            <div class="card-body">
+                <form id="upload-form" action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
+                    <div id="upload-area" class="upload-area">
+                        <i class="fas fa-file-upload upload-icon"></i>
+                        <div class="upload-text">
+                            <strong>Click to select</strong> or drag and drop your file here
+                        </div>
+                        <p>Your file will be securely stored with blockchain verification</p>
+                        <input type="file" name="file" id="file-input" class="upload-input" required>
+                    </div>
+                    <div id="file-preview" style="display: none; margin-top: 16px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div style="display: flex; align-items: center;">
+                                <i class="fas fa-file file-icon"></i>
+                                <span id="selected-filename">No file selected</span>
+                            </div>
+                            <button type="button" id="change-file" class="btn btn-secondary" style="padding: 6px 12px;">
+                                <i class="fas fa-exchange-alt"></i> Change
+                            </button>
+                        </div>
+                        <div class="progress-container" style="margin-top: 16px;">
+                            <div id="upload-progress" class="progress-bar"></div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 24px; text-align: center;">
+                        <button type="submit" id="upload-btn" class="btn btn-success" {% if not chain_valid %}disabled{% endif %}>
+                            <i class="fas fa-upload"></i> Upload & Store on Blockchain
+                        </button>
+                        {% if not chain_valid %}
+                        <p style="margin-top: 12px; color: var(--danger);">
+                            <i class="fas fa-info-circle"></i> Please repair or reset the blockchain before uploading new files.
+                        </p>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-database"></i> Stored Files</h2>
+            </div>
+            <div class="card-body">
+                {% if files %}
+                <div style="overflow-x: auto;">
+                    <table class="file-list">
+                        <thead>
+                            <tr>
+                                <th>File</th>
+                                <th>Uploaded</th>
+                                <th>File Hash</th>
+                                <th>Block #</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for file in files %}
+                            <tr>
+                                <td>
+                                    <div class="file-name">
+                                        <i class="fas fa-file file-icon"></i>
+                                        {{ file.filename }}
+                                    </div>
+                                </td>
+                                <td>{{ file.timestamp }}</td>
+                                <td>
+                                    <div class="hash-display" data-hash="{{ file.hash }}">
+                                        {{ file.hash[:8] }}...{{ file.hash[-8:] }}
+                                        <div class="hash-tooltip">Click to view full hash</div>
+                                    </div>
+                                </td>
+                                <td>{{ file.block_index }}</td>
+                                <td>
+                                    <a href="{{ url_for('download_file', filename=file.filename) }}" class="btn" style="padding: 6px 12px;">
+                                        <i class="fas fa-download"></i> Download
+                                    </a>
+                                    <button class="btn btn-secondary view-details-btn" style="padding: 6px 12px; margin-left: 8px;" data-filename="{{ file.filename }}" data-hash="{{ file.hash }}" data-timestamp="{{ file.timestamp }}" data-block="{{ file.block_index }}">
+                                        <i class="fas fa-info-circle"></i> Details
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-folder-open empty-icon"></i>
+                    <h3>No files stored yet</h3>
+                    <p>Upload your first file to get started with blockchain-secured storage</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card how-it-works">
+            <div class="card-header">
+                <h2><i class="fas fa-question-circle"></i> How It Works</h2>
+            </div>
+            <div class="card-body">
+                <p>This decentralized storage system uses blockchain technology to ensure data integrity:</p>
+                
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <strong>File Upload</strong>
+                        <p>When you upload a file, its cryptographic hash is calculated using SHA-256 algorithm.</p>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <strong>Blockchain Storage</strong>
+                        <p>The file's metadata and hash are stored in a new block in the blockchain.</p>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <strong>Cryptographic Linking</strong>
+                        <p>Each block contains a reference to the previous block, creating an immutable chain.</p>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <strong>Integrity Verification</strong>
+                        <p>When downloading a file, its hash is recalculated and compared with the hash stored in the blockchain.</p>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <strong>Tamper Detection</strong>
+                        <p>If a file has been modified, its hash will no longer match the one in the blockchain, alerting you to potential tampering.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Loading Overlay -->
+    <div id="loading" class="loading">
+        <div class="loading-spinner"></div>
+    </div>
+    
+    <!-- Hash Modal -->
+    <div id="hash-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>File Hash</h2>
+                <button class="close-btn" id="close-hash-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>The complete SHA-256 hash of this file:</p>
+                <div id="full-hash" style="font-family: 'Courier New', monospace; background-color: #f1f5f9; padding: 16px; border-radius: 8px; margin-top: 12px; word-break: break-all;"></div>
+                <p style="margin-top: 16px; color: var(--gray);">This hash uniquely identifies the file and is used to verify its integrity on the blockchain.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" id="copy-hash">
+                    <i class="fas fa-copy"></i> Copy Hash
+                </button>
+                <button class="btn btn-secondary" id="close-hash-btn">Close</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- File Details Modal -->
+    <div id="details-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>File Details</h2>
+                <button class="close-btn" id="close-details-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="file-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Filename:</span>
+                        <span id="detail-filename" class="detail-value"></span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Uploaded:</span>
+                        <span id="detail-timestamp" class="detail-value"></span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Block Number:</span>
+                        <span id="detail-block" class="detail-value"></span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">SHA-256 Hash:</span>
+                        <span id="detail-hash" class="detail-value"></span>
+                    </div>
+                </div>
+                <div style="margin-top: 24px;">
+                    <p><i class="fas fa-info-circle" style="color: var(--secondary);"></i> This file is secured by blockchain technology. Any modification to the file will be detected when the file is downloaded.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a id="detail-download" href="#" class="btn">
+                    <i class="fas fa-download"></i> Download
+                </a>
+                <button class="btn btn-secondary" id="close-details-btn">Close</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Repair Confirmation Modal -->
+    <div id="repair-modal" class="modal confirmation-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Repair Blockchain</h2>
+                <button class="close-btn" id="close-repair-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="confirmation-message">
+                    <p><i class="fas fa-exclamation-circle" style="color: var(--warning);"></i> You are about to repair the blockchain.</p>
+                    <p style="margin-top: 12px;">This will attempt to fix the blockchain by recalculating hashes and fixing block links. File data will be preserved, but some block metadata might change.</p>
+                    <p style="margin-top: 12px;">Do you want to continue?</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="{{ url_for('repair_blockchain') }}" class="btn btn-warning">
+                    <i class="fas fa-wrench"></i> Repair
+                </a>
+                <button class="btn btn-secondary" id="cancel-repair">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Reset Confirmation Modal -->
+    <div id="reset-modal" class="modal confirmation-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Reset Blockchain</h2>
+                <button class="close-btn" id="close-reset-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="confirmation-message">
+                    <p><i class="fas fa-exclamation-triangle" style="color: var(--danger);"></i> You are about to reset the blockchain.</p>
+                    <p style="margin-top: 12px;">This will delete all blockchain data and create a new genesis block. All file records will be lost, though the actual files will remain in the uploads folder.</p>
+                    <p style="margin-top: 12px; font-weight: bold; color: var(--danger);">This action cannot be undone!</p>
+                    <p style="margin-top: 12px;">Do you want to continue?</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="{{ url_for('reset_blockchain') }}" class="btn btn-danger">
+                    <i class="fas fa-trash-alt"></i> Reset
+                </a>
+                <button class="btn btn-secondary" id="cancel-reset">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // File upload handling
+        const uploadForm = document.getElementById('upload-form');
+        const fileInput = document.getElementById('file-input');
+        const uploadArea = document.getElementById('upload-area');
+        const filePreview = document.getElementById('file-preview');
+        const selectedFilename = document.getElementById('selected-filename');
+        const changeFileBtn = document.getElementById('change-file');
+        const uploadProgress = document.getElementById('upload-progress');
+        const loading = document.getElementById('loading');
+        
+        // Hash modal elements
+        const hashModal = document.getElementById('hash-modal');
+        const closeHashModal = document.getElementById('close-hash-modal');
+        const closeHashBtn = document.getElementById('close-hash-btn');
+        const fullHash = document.getElementById('full-hash');
+        const copyHashBtn = document.getElementById('copy-hash');
+        
+        // Details modal elements
+        const detailsModal = document.getElementById('details-modal');
+        const closeDetailsModal = document.getElementById('close-details-modal');
+        const closeDetailsBtn = document.getElementById('close-details-btn');
+        const detailFilename = document.getElementById('detail-filename');
+        const detailTimestamp = document.getElementById('detail-timestamp');
+        const detailBlock = document.getElementById('detail-block');
+        const detailHash = document.getElementById('detail-hash');
+        const detailDownload = document.getElementById('detail-download');
+        
+        // Repair and Reset modals
+        const repairBtn = document.getElementById('repair-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const repairModal = document.getElementById('repair-modal');
+        const resetModal = document.getElementById('reset-modal');
+        const closeRepairModal = document.getElementById('close-repair-modal');
+        const closeResetModal = document.getElementById('close-reset-modal');
+        const cancelRepair = document.getElementById('cancel-repair');
+        const cancelReset = document.getElementById('cancel-reset');
+        
+        // Repair and Reset buttons
+        if (repairBtn) {
+            repairBtn.addEventListener('click', function() {
+                repairModal.style.display = 'flex';
+            });
+        }
+        
+        if (resetBtn) {
+            resetBtn.addEventListener('click', function() {
+                resetModal.style.display = 'flex';
+            });
+        }
+        
+        // Close repair modal
+        if (closeRepairModal) {
+            closeRepairModal.addEventListener('click', function() {
+                repairModal.style.display = 'none';
+            });
+        }
+        
+        if (cancelRepair) {
+            cancelRepair.addEventListener('click', function() {
+                repairModal.style.display = 'none';
+            });
+        }
+        
+        // Close reset modal
+        if (closeResetModal) {
+            closeResetModal.addEventListener('click', function() {
+                resetModal.style.display = 'none';
+            });
+        }
+        
+        if (cancelReset) {
+            cancelReset.addEventListener('click', function() {
+                resetModal.style.display = 'none';
+            });
+        }
+        
+        // Handle file selection
+        fileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                selectedFilename.textContent = this.files[0].name;
+                uploadArea.style.display = 'none';
+                filePreview.style.display = 'block';
+                
+                // Simulate progress for better UX
+                uploadProgress.style.width = '0%';
+                setTimeout(() => {
+                    uploadProgress.style.width = '100%';
+                }, 500);
+            }
+        });
+        
+        // Change file button
+        changeFileBtn.addEventListener('click', function() {
+            filePreview.style.display = 'none';
+            uploadArea.style.display = 'block';
+            fileInput.value = '';
+        });
+        
+        // Drag and drop functionality
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, unhighlight, false);
+        });
+        
+        function highlight() {
+            uploadArea.classList.add('dragover');
+        }
+        
+        function unhighlight() {
+            uploadArea.classList.remove('dragover');
+        }
+        
+        uploadArea.addEventListener('drop', handleDrop, false);
+        
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            
+            if (files.length > 0) {
+                fileInput.files = files;
+                selectedFilename.textContent = files[0].name;
+                uploadArea.style.display = 'none';
+                filePreview.style.display = 'block';
+                
+                // Simulate progress for better UX
+                uploadProgress.style.width = '0%';
+                setTimeout(() => {
+                    uploadProgress.style.width = '100%';
+                }, 500);
+            }
+        }
+        
+        // Form submission
+        uploadForm.addEventListener('submit', function(e) {
+            if (fileInput.files.length > 0) {
+                loading.style.display = 'flex';
+            }
+        });
+        
+        // Hash display handling
+        document.querySelectorAll('.hash-display').forEach(el => {
+            el.addEventListener('click', function() {
+                const hash = this.getAttribute('data-hash');
+                fullHash.textContent = hash;
+                hashModal.style.display = 'flex';
+            });
+        });
+        
+        // Close hash modal
+        closeHashModal.addEventListener('click', function() {
+            hashModal.style.display = 'none';
+        });
+        
+        closeHashBtn.addEventListener('click', function() {
+            hashModal.style.display = 'none';
+        });
+        
+        // Copy hash to clipboard
+        copyHashBtn.addEventListener('click', function() {
+            const hashText = fullHash.textContent;
+            navigator.clipboard.writeText(hashText).then(function() {
+                copyHashBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                setTimeout(() => {
+                    copyHashBtn.innerHTML = '<i class="fas fa-copy"></i> Copy Hash';
+                }, 2000);
+            });
+        });
+        
+        // View file details
+        document.querySelectorAll('.view-details-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const filename = this.getAttribute('data-filename');
+                const hash = this.getAttribute('data-hash');
+                const timestamp = this.getAttribute('data-timestamp');
+                const block = this.getAttribute('data-block');
+                
+                detailFilename.textContent = filename;
+                detailTimestamp.textContent = timestamp;
+                detailBlock.textContent = block;
+                detailHash.textContent = hash;
+                detailDownload.href = `/download/${filename}`;
+                
+                detailsModal.style.display = 'flex';
+            });
+        });
+        
+        // Close details modal
+        closeDetailsModal.addEventListener('click', function() {
+            detailsModal.style.display = 'none';
+        });
+        
+        closeDetailsBtn.addEventListener('click', function() {
+            detailsModal.style.display = 'none';
+        });
+        
+        // Close modals when clicking outside
+        window.addEventListener('click', function(e) {
+            if (e.target === hashModal) {
+                hashModal.style.display = 'none';
+            }
+            if (e.target === detailsModal) {
+                detailsModal.style.display = 'none';
+            }
+            if (e.target === repairModal) {
+                repairModal.style.display = 'none';
+            }
+            if (e.target === resetModal) {
+                resetModal.style.display = 'none';
+            }
+        });
+        
+        // Add animation to flash messages
+        document.querySelectorAll('.flash-message').forEach((message, index) => {
+            message.style.animationDelay = `${index * 0.1}s`;
+            
+            // Auto-hide flash messages after 5 seconds
+            setTimeout(() => {
+                message.style.opacity = '0';
+                message.style.height = '0';
+                message.style.margin = '0';
+                message.style.padding = '0';
+                message.style.overflow = 'hidden';
+                message.style.transition = 'all 0.5s ease';
+            }, 5000 + (index * 100));
+        });
+    </script>
+</body>
+</html>
